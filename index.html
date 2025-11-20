@@ -39,7 +39,7 @@
             display: none;
             flex-direction: column;
             height: 100%;
-            padding: 20px;
+            padding: 10px;
             align-items: center;
             justify-content: center;
             opacity: 0;
@@ -62,7 +62,7 @@
             background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             letter-spacing: 2px;
         }
@@ -94,7 +94,7 @@
             background: var(--gold);
             color: #000;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             margin: 5px;
             border-radius: 5px;
             font-weight: bold;
@@ -111,17 +111,17 @@
             border-radius: 30px;
             border: none;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
 
         .btn-main {
             background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
             color: #000;
             font-weight: bold;
-            padding: 15px 40px;
+            padding: 15px 30px;
             border-radius: 50px;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
             text-transform: uppercase;
@@ -133,69 +133,108 @@
             background: transparent;
             border: 1px solid var(--silver);
             color: var(--silver);
-            padding: 10px;
+            padding: 12px;
             margin-top: 15px;
             border-radius: 20px;
             width: 100%;
+            font-size: 1rem;
         }
 
         /* --- GAME SCREEN --- */
+        /* Header reestilizado para ser maior e usar o espaço superior */
         .game-header {
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--gold);
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: auto auto;
+            gap: 10px;
+            padding: 15px 20px;
             background: rgba(0,0,0,0.8);
             position: absolute;
             top: 0;
             left: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
             z-index: 100;
+            border-bottom: 2px solid var(--gold-dark);
+        }
+
+        /* Área do Nome (Ocupa largura total na primeira linha) */
+        .header-name {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 2rem; /* Bem grande */
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 2px 4px #000;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+            padding-bottom: 5px;
+        }
+
+        /* Área de Erros e Questões (Lado a lado na segunda linha) */
+        .header-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--silver);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem; /* Números bem grandes */
+            font-weight: bold;
+            line-height: 1;
+            margin-top: 5px;
         }
 
         .question-box {
             background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
             width: 100%;
-            max-width: 600px;
-            min-height: 120px;
-            padding: 20px;
-            border-radius: 15px;
+            max-width: 700px;
+            min-height: 140px;
+            padding: 25px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #fff;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             margin-bottom: 20px;
-            margin-top: 60px; /* Espaço para o header */
-            border: 2px solid #fff;
+            margin-top: 180px; /* Aumentado para compensar o header maior */
+            border: 3px solid #fff;
             position: relative;
         }
 
         .options-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
+            flex-grow: 1; /* Ocupa o resto da tela */
+            justify-content: flex-start;
         }
 
         .option-btn {
             display: flex;
             align-items: stretch;
             background: linear-gradient(90deg, var(--blue-btn), var(--bg-dark));
-            border: 1px solid #4a90e2;
+            border: 2px solid #4a90e2;
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.1s;
             position: relative;
             overflow: hidden;
+            min-height: 60px;
         }
 
         .option-btn:active { transform: scale(0.98); }
@@ -204,19 +243,21 @@
             background: var(--gold);
             color: #000;
             font-weight: bold;
-            width: 50px;
+            width: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             border-right: 2px solid #000;
         }
 
         .option-text {
-            padding: 15px;
+            padding: 15px 20px;
             flex-grow: 1;
             text-align: left;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
         }
 
         .correct { background: var(--green-correct) !important; border-color: #fff; }
@@ -229,21 +270,69 @@
             100% { opacity: 1; }
         }
 
-        /* --- RANKING SCREEN --- */
+        /* --- RESULT SCREEN (NOVO LAYOUT) --- */
+        .result-panel {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-name {
+            font-size: 2.5rem;
+            color: var(--gold);
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .result-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .result-stat-box {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--silver);
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .val-green { color: var(--green-correct); }
+        .val-red { color: var(--red-wrong); }
+
+        /* Ranking menor embaixo */
         .ranking-list {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: rgba(0,0,0,0.5);
             border-radius: 10px;
-            max-height: 50vh;
+            max-height: 30vh;
             overflow-y: auto;
-            margin: 20px 0;
+            margin: 10px 0;
+            font-size: 1rem;
         }
 
         .ranking-item {
             display: flex;
             justify-content: space-between;
-            padding: 15px;
+            padding: 12px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
@@ -251,19 +340,10 @@
             background: rgba(0, 255, 0, 0.2);
             border: 1px solid #00ff00;
             color: #fff;
+            font-weight: bold;
         }
 
         .ranking-item:first-child { color: var(--gold); font-weight: bold; }
-        .ranking-item:nth-child(2) { color: var(--silver); }
-        .ranking-item:nth-child(3) { color: #cd7f32; }
-
-        .score-big {
-            font-size: 5rem;
-            color: var(--gold);
-            font-weight: 900;
-            margin: 10px 0;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
 
         .message-box {
             background: #fff;
@@ -304,14 +384,17 @@
     <!-- TELA DE JOGO -->
     <div id="screen-game" class="screen">
         <div class="game-header">
-            <span id="player-display" style="flex-grow: 1; text-align: left;">Aluno</span>
-            <div style="text-align: right;">
-                <div style="font-size: 0.8rem; color: var(--silver);">ERROS</div>
-                <span id="strikes-display" style="color: var(--red-wrong); font-size: 1.2rem;">0</span>/3
+            <!-- Nome bem grande no topo -->
+            <div class="header-name" id="player-display">ALUNO</div>
+            
+            <!-- Status grandes lado a lado -->
+            <div class="header-stat">
+                <span class="stat-label">Erros</span>
+                <span class="stat-value" id="strikes-display" style="color: var(--red-wrong);">0/3</span>
             </div>
-            <div style="text-align: right; margin-left: 15px;">
-                <div style="font-size: 0.8rem; color: var(--silver);">QUESTÃO</div>
-                <span id="q-num-display" style="color: #fff; font-size: 1.2rem;">1</span>/10
+            <div class="header-stat">
+                <span class="stat-label">Questão</span>
+                <span class="stat-value" id="q-num-display" style="color: #fff;">1/10</span>
             </div>
         </div>
 
@@ -324,16 +407,30 @@
 
     <!-- TELA DE RESULTADO -->
     <div id="screen-result" class="screen">
-        <h2>Resultado Final</h2>
-        <p id="result-msg">Processando...</p>
+        <h2>Resultado da Partida</h2>
         
-        <!-- Score com ID correto -->
-        <div class="score-big" id="final-score">0</div>
-        <p style="font-size: 1.2rem; margin-top: -10px;">PONTOS</p>
+        <!-- Novo Painel de Resumo Grande -->
+        <div class="result-panel">
+            <div class="result-name" id="end-player-name">NOME DO ALUNO</div>
+            
+            <div class="result-stats-grid">
+                <div class="result-stat-box">
+                    <div class="result-label">Acertos</div>
+                    <div class="result-value val-green" id="end-score">0</div>
+                </div>
+                <div class="result-stat-box">
+                    <div class="result-label">Erros</div>
+                    <div class="result-value val-red" id="end-strikes">0</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 10px; color: var(--silver);" id="end-msg">Mensagem final</div>
+        </div>
 
-        <h3>Ranking Local</h3>
+        <h3 style="margin: 10px 0; font-size: 1.2rem;">Ranking Geral</h3>
         <div class="ranking-list" id="ranking-container"></div>
-        <button class="btn-main" onclick="logout()">Sair</button>
+        
+        <button class="btn-main" onclick="logout()">Sair / Novo Jogo</button>
     </div>
 
     <script>
@@ -450,12 +547,14 @@
             if(gameState.strikes >= 3 || gameState.currentIdx >= 10) { endGame(); return; }
             const qData = gameState.questions[gameState.currentIdx];
             
-            // ATUALIZAÇÃO SOLICITADA: NOME E ID
-            const firstName = gameState.user.name.split(' ')[0];
+            // NOME E ID GRANDES NO TOPO
+            const firstName = gameState.user.name.split(' ')[0].toUpperCase();
             document.getElementById('player-display').textContent = `${gameState.user.id} - ${firstName}`;
 
-            document.getElementById('strikes-display').textContent = gameState.strikes;
-            document.getElementById('q-num-display').textContent = gameState.currentIdx + 1;
+            // STATUS ATUALIZADOS
+            document.getElementById('strikes-display').textContent = `${gameState.strikes}/3`;
+            document.getElementById('q-num-display').textContent = `${gameState.currentIdx + 1}/10`;
+            
             document.getElementById('question-text').textContent = qData.q;
             
             const optContainer = document.getElementById('options-list');
@@ -504,24 +603,19 @@
             
             showScreen('screen-result');
             
-            // ATUALIZAÇÃO SOLICITADA: CORREÇÃO DO PLACAR
-            // Animação de contagem
-            const scoreEl = document.getElementById('final-score');
-            scoreEl.textContent = "0";
-            let current = 0;
-            const timer = setInterval(() => {
-                if(current >= gameState.score) {
-                    clearInterval(timer);
-                    scoreEl.textContent = gameState.score;
-                } else {
-                    current++;
-                    scoreEl.textContent = current;
-                }
-            }, 100);
-
-            const msg = document.getElementById('result-msg');
-            if(gameState.strikes >= 3) msg.textContent = "Errou 3 vezes! Fim de jogo.";
-            else msg.textContent = "Parabéns! Você completou as 10 perguntas!";
+            // PREENCHE O PAINEL GRANDE DE RESULTADO
+            document.getElementById('end-player-name').textContent = gameState.user.name.split(' ')[0].toUpperCase();
+            document.getElementById('end-score').textContent = gameState.score;
+            document.getElementById('end-strikes').textContent = gameState.strikes;
+            
+            const msgEl = document.getElementById('end-msg');
+            if(gameState.strikes >= 3) {
+                msgEl.textContent = "Que pena! Você errou 3 vezes.";
+                msgEl.style.color = "var(--red-wrong)";
+            } else {
+                msgEl.textContent = "Parabéns! Missão cumprida!";
+                msgEl.style.color = "var(--green-correct)";
+            }
             
             renderRanking(db);
         }
@@ -534,7 +628,7 @@
                 if(u.history[todayKey]) {
                     list.push({ 
                         name: u.name, 
-                        id: uid, // Precisamos do ID para saber quem sou eu
+                        id: uid,
                         score: u.history[todayKey].score 
                     });
                 }
@@ -548,13 +642,9 @@
             list.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'ranking-item';
-                
-                // ATUALIZAÇÃO SOLICITADA: DESTACAR USUÁRIO ATUAL
-                // Verifica se é o usuário atual
                 if(String(item.id) === String(gameState.user.id)) {
                     div.classList.add('me');
                 }
-
                 div.innerHTML = `<span>${i+1}º ${item.name.split(' ')[0]}</span><span>${item.score} pts</span>`;
                 container.appendChild(div);
             });
