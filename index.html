@@ -261,7 +261,7 @@
             
             <div id="manual-box">
                 <p>Digite seu ID e Nome ou escaneie o QR</p>
-                <input type="number" id="input-id" placeholder="ID do Aluno">
+                <input type="text" id="input-id" placeholder="ID do Aluno (ex: 01)">
                 <input type="text" id="input-name" placeholder="Primeiro Nome">
             </div>
 
@@ -352,7 +352,6 @@
         ];
 
         // Gerador de "2000" perguntas (Simulação por Permutação para economizar memória)
-        // Na prática, embaralha e reutiliza as bases criando uma experiência longa
         function generateBigPool() {
             let bigPool = [];
             for(let i=0; i<50; i++) { // Repete o ciclo 50 vezes
@@ -411,11 +410,17 @@
                 db.users[id] = { name: name, history: {} };
             }
             
-            // Verifica se já jogou hoje
-            if(db.users[id].history[todayKey]) {
+            // Verifica se já jogou hoje 
+            // EXCEÇÃO: ID "01" É DE TESTE/ADMIN E NÃO TEM LIMITE
+            if(id !== '01' && db.users[id].history[todayKey]) {
                 const todayData = db.users[id].history[todayKey];
                 showMsg(`Olá ${name}! Você já jogou hoje. Pontuação: ${todayData.score}. Tente amanhã!`);
                 return;
+            }
+            
+            // Se for ID 01, mostra um alerta discreto
+            if(id === '01') {
+                console.log("Modo Teste/Admin ativado: Limites ignorados.");
             }
 
             // Inicia Jogo
@@ -623,23 +628,38 @@
                 try {
                     const barcodes = await barcodeDetector.detect(video);
                     if (barcodes.length > 0) {
-                        const rawValue = barcodes[0].rawValue; // Esperado: "123|Nome"
+                        const rawValue = barcodes[0].rawValue; 
+                        // Exemplo esperado: "123|Nome" OU "01 AGATHA BUCALON..."
                         
+                        let id, name;
+
                         if(rawValue.includes('|')) {
+                            [id, name] = rawValue.split('|');
+                        } else {
+                            // Tenta parsear por espaço para crachás sem pipe
+                            // Assume que a primeira palavra é o ID
+                            const parts = rawValue.trim().split(' ');
+                            if(parts.length >= 2) {
+                                id = parts[0];
+                                name = parts.slice(1).join(' '); // Junta o resto como nome
+                            }
+                        }
+
+                        if(id && name) {
                             clearInterval(detectLoop);
                             stopCamera();
-                            // Áudio beep (simulado visualmente)
+                            
+                            // Feedback Visual de Sucesso
                             document.body.style.backgroundColor = '#fff';
                             setTimeout(() => document.body.style.backgroundColor = '', 100);
                             
-                            const [id, name] = rawValue.split('|');
                             document.getElementById('input-id').value = id;
                             document.getElementById('input-name').value = name;
                             processLogin(id, name);
                         }
                     }
                 } catch (e) {
-                    // Ignora frames vazios ou erros de detecção momentâneos
+                    // Ignora frames vazios
                 }
             }, 500);
         }
