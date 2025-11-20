@@ -141,7 +141,6 @@
         }
 
         /* --- GAME SCREEN --- */
-        /* Header reestilizado para ser maior e usar o espaço superior */
         .game-header {
             width: 100%;
             display: grid;
@@ -158,11 +157,10 @@
             border-bottom: 2px solid var(--gold-dark);
         }
 
-        /* Área do Nome (Ocupa largura total na primeira linha) */
         .header-name {
             grid-column: 1 / -1;
             text-align: center;
-            font-size: 2rem; /* Bem grande */
+            font-size: 2rem;
             font-weight: 900;
             color: var(--gold);
             text-shadow: 0 2px 4px #000;
@@ -171,7 +169,6 @@
             padding-bottom: 5px;
         }
 
-        /* Área de Erros e Questões (Lado a lado na segunda linha) */
         .header-stat {
             display: flex;
             flex-direction: column;
@@ -187,7 +184,7 @@
         }
 
         .stat-value {
-            font-size: 2.2rem; /* Números bem grandes */
+            font-size: 2.2rem;
             font-weight: bold;
             line-height: 1;
             margin-top: 5px;
@@ -209,7 +206,7 @@
             color: #fff;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             margin-bottom: 20px;
-            margin-top: 180px; /* Aumentado para compensar o header maior */
+            margin-top: 180px;
             border: 3px solid #fff;
             position: relative;
         }
@@ -220,7 +217,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            flex-grow: 1; /* Ocupa o resto da tela */
+            flex-grow: 1;
             justify-content: flex-start;
         }
 
@@ -270,80 +267,57 @@
             100% { opacity: 1; }
         }
 
-        /* --- RESULT SCREEN (NOVO LAYOUT) --- */
+        /* --- RESULT SCREEN (SIMPLIFICADO) --- */
         .result-panel {
             width: 100%;
             max-width: 600px;
             background: rgba(255,255,255,0.1);
-            border: 2px solid var(--gold);
+            border: 4px solid var(--gold);
             border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
             text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
         }
 
         .result-name {
-            font-size: 2.5rem;
+            font-size: 3rem;
             color: var(--gold);
             font-weight: 900;
-            margin-bottom: 15px;
+            margin-bottom: 30px;
             text-shadow: 2px 2px 0 #000;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 20px;
         }
 
         .result-stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 30px;
         }
 
         .result-stat-box {
             background: rgba(0,0,0,0.5);
-            padding: 15px;
+            padding: 20px;
             border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .result-label {
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: var(--silver);
             text-transform: uppercase;
+            margin-bottom: 10px;
         }
 
         .result-value {
-            font-size: 3.5rem;
+            font-size: 5rem;
             font-weight: 900;
-            line-height: 1.1;
+            line-height: 1;
         }
 
         .val-green { color: var(--green-correct); }
         .val-red { color: var(--red-wrong); }
-
-        /* Ranking menor embaixo */
-        .ranking-list {
-            width: 100%;
-            max-width: 600px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
-            max-height: 30vh;
-            overflow-y: auto;
-            margin: 10px 0;
-            font-size: 1rem;
-        }
-
-        .ranking-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .ranking-item.me {
-            background: rgba(0, 255, 0, 0.2);
-            border: 1px solid #00ff00;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .ranking-item:first-child { color: var(--gold); font-weight: bold; }
 
         .message-box {
             background: #fff;
@@ -409,13 +383,13 @@
     <div id="screen-result" class="screen">
         <h2>Resultado da Partida</h2>
         
-        <!-- Novo Painel de Resumo Grande -->
+        <!-- Painel de Resumo (Simplificado sem Ranking) -->
         <div class="result-panel">
-            <div class="result-name" id="end-player-name">NOME DO ALUNO</div>
+            <div class="result-name" id="end-player-name">NOME</div>
             
             <div class="result-stats-grid">
                 <div class="result-stat-box">
-                    <div class="result-label">Acertos</div>
+                    <div class="result-label">Pontuação</div>
                     <div class="result-value val-green" id="end-score">0</div>
                 </div>
                 <div class="result-stat-box">
@@ -424,11 +398,10 @@
                 </div>
             </div>
             
-            <div style="margin-top: 10px; color: var(--silver);" id="end-msg">Mensagem final</div>
+            <div style="margin-top: 20px; color: var(--silver); font-size: 1.2rem;" id="end-msg">Mensagem final</div>
         </div>
 
-        <h3 style="margin: 10px 0; font-size: 1.2rem;">Ranking Geral</h3>
-        <div class="ranking-list" id="ranking-container"></div>
+        <!-- Ranking Removido -->
         
         <button class="btn-main" onclick="logout()">Sair / Novo Jogo</button>
     </div>
@@ -603,7 +576,7 @@
             
             showScreen('screen-result');
             
-            // PREENCHE O PAINEL GRANDE DE RESULTADO
+            // PREENCHE O PAINEL GRANDE DE RESULTADO (Apenas Nome, Pontos e Erros)
             document.getElementById('end-player-name').textContent = gameState.user.name.split(' ')[0].toUpperCase();
             document.getElementById('end-score').textContent = gameState.score;
             document.getElementById('end-strikes').textContent = gameState.strikes;
@@ -617,37 +590,7 @@
                 msgEl.style.color = "var(--green-correct)";
             }
             
-            renderRanking(db);
-        }
-
-        function renderRanking(db) {
-            const list = [];
-            const todayKey = new Date().toLocaleDateString();
-            Object.keys(db.users).forEach(uid => {
-                const u = db.users[uid];
-                if(u.history[todayKey]) {
-                    list.push({ 
-                        name: u.name, 
-                        id: uid,
-                        score: u.history[todayKey].score 
-                    });
-                }
-            });
-            
-            list.sort((a, b) => b.score - a.score);
-            
-            const container = document.getElementById('ranking-container');
-            container.innerHTML = '';
-            
-            list.forEach((item, i) => {
-                const div = document.createElement('div');
-                div.className = 'ranking-item';
-                if(String(item.id) === String(gameState.user.id)) {
-                    div.classList.add('me');
-                }
-                div.innerHTML = `<span>${i+1}º ${item.name.split(' ')[0]}</span><span>${item.score} pts</span>`;
-                container.appendChild(div);
-            });
+            // Ranking removido conforme solicitado
         }
 
         function logout() { location.reload(); }
