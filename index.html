@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Show do Crisma</title>
+    <!-- Biblioteca de QR Code sugerida pelo usuário -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
     <style>
         :root {
             --bg-dark: #0a0a2a;
@@ -68,19 +71,45 @@
         .login-container {
             width: 100%;
             max-width: 400px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.8); /* Mais escuro para contraste do QR */
             padding: 20px;
             border-radius: 15px;
             border: 1px solid var(--gold);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        video {
+        /* Estilização do Leitor HTML5-QRCODE */
+        #reader {
             width: 100%;
             border-radius: 10px;
-            border: 2px solid var(--gold);
+            overflow: hidden;
             margin-bottom: 15px;
             background: #000;
+            display: none; /* Oculto inicialmente */
+        }
+        
+        /* Ajustes nos botões internos da biblioteca */
+        #reader button {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        #reader select {
+            color: #000;
+            padding: 5px;
+        }
+
+        #reader__dashboard_section_csr span {
+            color: white !important; /* Texto de permissão visível */
         }
 
         input {
@@ -133,7 +162,7 @@
         }
 
         .question-box {
-            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); /* Verde Show do Milhão */
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
             width: 100%;
             max-width: 600px;
             min-height: 120px;
@@ -194,7 +223,6 @@
             font-size: 1rem;
         }
 
-        /* Animations for answers */
         .correct { background: var(--green-correct) !important; border-color: #fff; }
         .wrong { background: var(--red-wrong) !important; border-color: #fff; }
         .blink { animation: blinking 0.5s infinite; }
@@ -241,34 +269,31 @@
             border-radius: 5px;
             margin-bottom: 10px;
             font-weight: bold;
-            display: none; /* Hidden by default */
+            display: none;
+            width: 100%;
         }
 
     </style>
 </head>
 <body>
 
-    <!-- AUDIO ELEMENTS (Simulados via JS AudioContext para não carregar arquivos externos, mas aqui deixo placeholders lógicos) -->
-    
     <!-- TELA DE LOGIN -->
     <div id="screen-login" class="screen active">
         <h1>Show do Crisma</h1>
         <div class="login-container">
-            <div id="camera-box" style="display:none;">
-                <video id="video-preview" playsinline autoplay></video>
-                <p>Aponte para o QR Code</p>
-            </div>
             
-            <div id="manual-box">
-                <p>Digite seu ID e Nome ou escaneie o QR</p>
+            <!-- Container para o Leitor de QR -->
+            <div id="reader"></div>
+            
+            <div id="manual-box" style="width: 100%;">
                 <input type="text" id="input-id" placeholder="ID do Aluno (ex: 01)">
                 <input type="text" id="input-name" placeholder="Primeiro Nome">
             </div>
 
             <div id="msg-login" class="message-box" style="background: #ffeb3b;"></div>
 
-            <button class="btn-main" onclick="loginManual()">Entrar / Jogar</button>
-            <button class="btn-secondary" onclick="toggleCamera()">📷 Ler QR Code</button>
+            <button class="btn-main" id="btn-jogar" onclick="loginManual()">Entrar / Jogar</button>
+            <button class="btn-secondary" id="btn-camera" onclick="toggleCamera()">📷 Abrir Leitor QR</button>
             <button class="btn-secondary" style="border-color: transparent; font-size: 0.8rem;" onclick="clearData()">Limpar Dados Locais</button>
         </div>
     </div>
@@ -285,29 +310,22 @@
             <span id="question-text">Carregando pergunta...</span>
         </div>
 
-        <div class="options-container" id="options-list">
-            <!-- Opções geradas via JS -->
-        </div>
+        <div class="options-container" id="options-list"></div>
     </div>
 
     <!-- TELA DE RESULTADO -->
     <div id="screen-result" class="screen">
         <h2>Resultado Final</h2>
         <p id="result-msg">Você completou o desafio de hoje!</p>
-        
         <div class="score-big" id="final-score">0</div>
         <p>PONTOS</p>
-
         <h3>Ranking Local</h3>
-        <div class="ranking-list" id="ranking-container">
-            <!-- Ranking via JS -->
-        </div>
-
+        <div class="ranking-list" id="ranking-container"></div>
         <button class="btn-main" onclick="logout()">Sair</button>
     </div>
 
     <script>
-        // --- BANCO DE PERGUNTAS (40 BASE + Gerador Lógico) ---
+        // --- BANCO DE PERGUNTAS ---
         const baseQuestions = [
             { q: "Quantos são os Sacramentos da Igreja Católica?", options: ["7", "10", "3", "12"], correct: 0 },
             { q: "Qual sacramento nos torna filhos de Deus?", options: ["Crisma", "Batismo", "Eucaristia", "Ordem"], correct: 1 },
@@ -351,10 +369,9 @@
             { q: "Como se chama a conversa com Deus?", options: ["Sermão", "Oração", "Pregação", "Leitura"], correct: 1 }
         ];
 
-        // Gerador de "2000" perguntas (Simulação por Permutação para economizar memória)
         function generateBigPool() {
             let bigPool = [];
-            for(let i=0; i<50; i++) { // Repete o ciclo 50 vezes
+            for(let i=0; i<50; i++) {
                 const shuffled = [...baseQuestions].sort(() => Math.random() - 0.5);
                 bigPool = bigPool.concat(shuffled);
             }
@@ -362,42 +379,22 @@
         }
 
         // --- ESTADO DO JOGO ---
-        let gameState = {
-            user: null,
-            questions: [],
-            currentIdx: 0,
-            score: 0,
-            strikes: 0,
-            isLocked: false
-        };
-
-        // --- LÓGICA DE ARMAZENAMENTO (LocalStorage) ---
+        let gameState = { user: null, questions: [], currentIdx: 0, score: 0, strikes: 0, isLocked: false };
         const DB_KEY = 'crisma_game_db_v2';
         
-        function getDB() {
-            const db = localStorage.getItem(DB_KEY);
-            return db ? JSON.parse(db) : { users: {}, rankings: [] };
-        }
+        function getDB() { return localStorage.getItem(DB_KEY) ? JSON.parse(localStorage.getItem(DB_KEY)) : { users: {}, rankings: [] }; }
+        function saveDB(data) { localStorage.setItem(DB_KEY, JSON.stringify(data)); }
 
-        function saveDB(data) {
-            localStorage.setItem(DB_KEY, JSON.stringify(data));
-        }
-
-        // --- CONTROLE DE TELAS ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        // --- LOGIN & VALIDAÇÃO DIÁRIA ---
+        // --- LOGIN LOGIC ---
         function loginManual() {
             const id = document.getElementById('input-id').value.trim();
             const name = document.getElementById('input-name').value.trim();
-            
-            if(!id || !name) {
-                alert("Preencha ID e Nome!");
-                return;
-            }
+            if(!id || !name) { alert("Preencha ID e Nome!"); return; }
             processLogin(id, name);
         }
 
@@ -405,32 +402,27 @@
             const todayKey = new Date().toLocaleDateString();
             const db = getDB();
             
-            // Cria usuário se não existir
-            if(!db.users[id]) {
-                db.users[id] = { name: name, history: {} };
-            }
+            if(!db.users[id]) db.users[id] = { name: name, history: {} };
             
-            // Verifica se já jogou hoje 
-            // EXCEÇÃO: ID "01" É DE TESTE/ADMIN E NÃO TEM LIMITE
+            // Bypass check for ID 01
             if(id !== '01' && db.users[id].history[todayKey]) {
                 const todayData = db.users[id].history[todayKey];
                 showMsg(`Olá ${name}! Você já jogou hoje. Pontuação: ${todayData.score}. Tente amanhã!`);
                 return;
             }
-            
-            // Se for ID 01, mostra um alerta discreto
-            if(id === '01') {
-                console.log("Modo Teste/Admin ativado: Limites ignorados.");
+
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().catch(error => console.error("Erro ao limpar scanner", error));
+                document.getElementById('reader').style.display = "none";
+                document.getElementById('btn-camera').textContent = "📷 Abrir Leitor QR";
             }
 
-            // Inicia Jogo
             gameState.user = { id, name };
-            gameState.questions = generateBigPool().slice(0, 10); // Pega 10
+            gameState.questions = generateBigPool().slice(0, 10);
             gameState.currentIdx = 0;
             gameState.score = 0;
             gameState.strikes = 0;
             gameState.isLocked = false;
-
             showScreen('screen-game');
             renderGame();
         }
@@ -441,32 +433,23 @@
             el.style.display = 'block';
         }
 
-        // --- MOTOR DO JOGO ---
+        // --- GAME LOGIC ---
         function renderGame() {
-            if(gameState.strikes >= 3 || gameState.currentIdx >= 10) {
-                endGame();
-                return;
-            }
-
+            if(gameState.strikes >= 3 || gameState.currentIdx >= 10) { endGame(); return; }
             const qData = gameState.questions[gameState.currentIdx];
             
-            // Atualiza Header
             document.getElementById('player-display').textContent = `Aluno: ${gameState.user.name}`;
             document.getElementById('strikes-display').textContent = gameState.strikes;
             document.getElementById('q-num-display').textContent = gameState.currentIdx + 1;
-
-            // Atualiza Pergunta e Opções
             document.getElementById('question-text').textContent = qData.q;
+            
             const optContainer = document.getElementById('options-list');
             optContainer.innerHTML = '';
 
             qData.options.forEach((opt, idx) => {
                 const btn = document.createElement('div');
                 btn.className = 'option-btn';
-                btn.innerHTML = `
-                    <div class="option-number">${idx + 1}</div>
-                    <div class="option-text">${opt}</div>
-                `;
+                btn.innerHTML = `<div class="option-number">${idx + 1}</div><div class="option-text">${opt}</div>`;
                 btn.onclick = () => handleAnswer(idx, btn);
                 optContainer.appendChild(btn);
             });
@@ -475,13 +458,10 @@
         function handleAnswer(selectedIdx, btnElement) {
             if(gameState.isLocked) return;
             gameState.isLocked = true;
-
             const currentQ = gameState.questions[gameState.currentIdx];
             const isCorrect = selectedIdx === currentQ.correct;
 
-            // Feedback Visual
-            btnElement.classList.add('blink'); // Pisca amarelo simulado
-            
+            btnElement.classList.add('blink');
             setTimeout(() => {
                 btnElement.classList.remove('blink');
                 if(isCorrect) {
@@ -490,180 +470,140 @@
                 } else {
                     btnElement.classList.add('wrong');
                     gameState.strikes++;
-                    // Mostra a correta
                     const correctBtn = document.getElementById('options-list').children[currentQ.correct];
                     if(correctBtn) correctBtn.classList.add('correct');
                 }
-
-                // Espera e avança
                 setTimeout(() => {
                     gameState.currentIdx++;
                     gameState.isLocked = false;
                     renderGame();
                 }, 1500);
-
-            }, 1000); // Tempo do suspense
+            }, 1000);
         }
 
-        // --- FIM DE JOGO & RANKING ---
         function endGame() {
             const db = getDB();
             const todayKey = new Date().toLocaleDateString();
-
-            // Salva Histórico
-            db.users[gameState.user.id].history[todayKey] = {
-                score: gameState.score,
-                date: new Date().toISOString()
-            };
+            db.users[gameState.user.id].history[todayKey] = { score: gameState.score, date: new Date().toISOString() };
             saveDB(db);
-
-            // Prepara tela final
             showScreen('screen-result');
             document.getElementById('final-score').textContent = gameState.score;
-            
-            const msg = document.getElementById('result-msg');
-            if(gameState.strikes >= 3) msg.textContent = "Errou 3 vezes! Fim de jogo.";
-            else msg.textContent = "Parabéns! Você completou as 10 perguntas!";
-
+            document.getElementById('result-msg').textContent = gameState.strikes >= 3 ? "Errou 3 vezes! Fim de jogo." : "Parabéns! Você completou as 10 perguntas!";
             renderRanking(db);
         }
 
         function renderRanking(db) {
             const list = [];
             const todayKey = new Date().toLocaleDateString();
-
-            // Coleta scores de hoje
             Object.keys(db.users).forEach(uid => {
                 const u = db.users[uid];
-                if(u.history[todayKey]) {
-                    list.push({ name: u.name, score: u.history[todayKey].score });
-                }
+                if(u.history[todayKey]) list.push({ name: u.name, score: u.history[todayKey].score });
             });
-
-            // Ordena Descrescente
             list.sort((a, b) => b.score - a.score);
-
             const container = document.getElementById('ranking-container');
             container.innerHTML = '';
-            
             list.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'ranking-item';
-                div.innerHTML = `
-                    <span>${i+1}º ${item.name}</span>
-                    <span>${item.score} pts</span>
-                `;
+                div.innerHTML = `<span>${i+1}º ${item.name}</span><span>${item.score} pts</span>`;
                 container.appendChild(div);
             });
         }
 
-        function logout() {
-            location.reload();
-        }
-
+        function logout() { location.reload(); }
         function clearData() {
-            if(confirm("Isso apagará todo o histórico e ranking de todos os alunos. Confirma?")) {
+            if(confirm("Isso apagará todo o histórico. Confirma?")) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // --- LEITURA QR CODE (BarcodeDetector API) ---
-        // Nota: Esta API funciona no Chrome/Android nativamente.
-        // iOS Safari ainda não suporta nativamente, por isso o fallback manual é crucial.
-        
-        let stream = null;
+        // --- INTEGRAÇÃO HTML5-QRCODE (Sua sugestão) ---
+        let html5QrcodeScanner = null;
 
-        async function toggleCamera() {
-            const camBox = document.getElementById('camera-box');
+        function toggleCamera() {
+            const readerBox = document.getElementById('reader');
             const manualBox = document.getElementById('manual-box');
-            const video = document.getElementById('video-preview');
+            const btn = document.getElementById('btn-camera');
 
-            if (camBox.style.display === 'none') {
-                // Tenta abrir câmera
-                try {
-                    // Verifica suporte a BarcodeDetector
-                    if (!('BarcodeDetector' in window)) {
-                        alert("Seu navegador não suporta leitura nativa de QR. Use a entrada manual.");
-                        return;
-                    }
+            if (readerBox.style.display === 'none' || readerBox.style.display === '') {
+                // ABRIR CAMERA
+                manualBox.style.display = 'none';
+                readerBox.style.display = 'block';
+                btn.textContent = "❌ Fechar Leitor";
 
-                    manualBox.style.display = 'none';
-                    camBox.style.display = 'block';
-
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: "environment" } 
-                    });
-                    video.srcObject = stream;
-                    
-                    startScanning();
-
-                } catch (err) {
-                    console.error(err);
-                    alert("Erro ao acessar câmera: " + err.message);
-                    camBox.style.display = 'none';
-                    manualBox.style.display = 'block';
+                // Instancia o scanner se não existir
+                if (!html5QrcodeScanner) {
+                    html5QrcodeScanner = new Html5QrcodeScanner(
+                        "reader", 
+                        { fps: 10, qrbox: 250 }, 
+                        false // verbose
+                    );
                 }
-            } else {
-                stopCamera();
-            }
-        }
-
-        function stopCamera() {
-            if(stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null;
-            }
-            document.getElementById('camera-box').style.display = 'none';
-            document.getElementById('manual-box').style.display = 'block';
-        }
-
-        async function startScanning() {
-            const video = document.getElementById('video-preview');
-            const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-
-            const detectLoop = setInterval(async () => {
-                if(!stream) { clearInterval(detectLoop); return; }
                 
-                try {
-                    const barcodes = await barcodeDetector.detect(video);
-                    if (barcodes.length > 0) {
-                        const rawValue = barcodes[0].rawValue; 
-                        // Exemplo esperado: "123|Nome" OU "01 AGATHA BUCALON..."
-                        
-                        let id, name;
+                // Renderiza (inicia a câmera automaticamente)
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 
-                        if(rawValue.includes('|')) {
-                            [id, name] = rawValue.split('|');
-                        } else {
-                            // Tenta parsear por espaço para crachás sem pipe
-                            // Assume que a primeira palavra é o ID
-                            const parts = rawValue.trim().split(' ');
-                            if(parts.length >= 2) {
-                                id = parts[0];
-                                name = parts.slice(1).join(' '); // Junta o resto como nome
-                            }
-                        }
-
-                        if(id && name) {
-                            clearInterval(detectLoop);
-                            stopCamera();
-                            
-                            // Feedback Visual de Sucesso
-                            document.body.style.backgroundColor = '#fff';
-                            setTimeout(() => document.body.style.backgroundColor = '', 100);
-                            
-                            document.getElementById('input-id').value = id;
-                            document.getElementById('input-name').value = name;
-                            processLogin(id, name);
-                        }
-                    }
-                } catch (e) {
-                    // Ignora frames vazios
-                }
-            }, 500);
+            } else {
+                // FECHAR CAMERA
+                closeCameraUI();
+            }
         }
 
+        function closeCameraUI() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => {
+                    // Scanner limpo
+                }).catch(error => {
+                    console.error("Failed to clear html5QrcodeScanner. ", error);
+                });
+            }
+            document.getElementById('reader').style.display = 'none';
+            document.getElementById('manual-box').style.display = 'block';
+            document.getElementById('btn-camera').textContent = "📷 Abrir Leitor QR";
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Limpa o texto conforme sua lógica (remove 'Crisma Juvenil')
+            const cleanText = decodedText.replace(/Crisma Juvenil/i, '').trim();
+            
+            console.log(`QR Lido: ${cleanText}`);
+            
+            // Lógica de Parse Híbrida:
+            // 1. Tenta "ID|NOME" (Padrão original)
+            // 2. Tenta "ID NOME SOBRENOME" (Padrão do seu crachá)
+            
+            let id, name;
+
+            if(cleanText.includes('|')) {
+                [id, name] = cleanText.split('|');
+            } else {
+                // Assume que o primeiro token é o ID e o resto é o nome
+                const parts = cleanText.split(' ');
+                if(parts.length >= 2) {
+                    id = parts[0];
+                    name = parts.slice(1).join(' ');
+                }
+            }
+
+            if(id && name) {
+                // Feedback visual
+                document.body.style.backgroundColor = '#fff';
+                setTimeout(() => document.body.style.backgroundColor = '', 100);
+                
+                // Preenche campos (opcional, mas bom pra debug)
+                document.getElementById('input-id').value = id;
+                document.getElementById('input-name').value = name;
+                
+                // Faz login
+                processLogin(id, name);
+            }
+        }
+
+        function onScanFailure(error) {
+            // handle scan failure, usually better to ignore and keep scanning.
+            // console.warn(`Code scan error = ${error}`);
+        }
     </script>
 </body>
 </html>
