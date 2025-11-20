@@ -39,16 +39,23 @@
             display: none;
             flex-direction: column;
             height: 100%;
+            width: 100%;
             padding: 10px;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.3s ease;
+            position: absolute; /* Garante sobreposição correta */
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at center, var(--bg-light) 0%, var(--bg-dark) 100%); /* Fundo próprio para evitar transparência indesejada */
+            z-index: 10;
         }
 
         .screen.active {
             display: flex;
             opacity: 1;
+            z-index: 20; /* Tela ativa sempre no topo */
         }
 
         h1, h2 {
@@ -148,7 +155,7 @@
             grid-template-rows: auto auto;
             gap: 10px;
             padding: 15px 20px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             position: absolute;
             top: 0;
             left: 0;
@@ -267,7 +274,7 @@
             100% { opacity: 1; }
         }
 
-        /* --- RESULT SCREEN (SIMPLIFICADO) --- */
+        /* --- RESULT SCREEN (FOCADA) --- */
         .result-panel {
             width: 100%;
             max-width: 600px;
@@ -278,6 +285,9 @@
             margin-bottom: 40px;
             text-align: center;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .result-name {
@@ -288,12 +298,14 @@
             text-shadow: 2px 2px 0 #000;
             border-bottom: 1px solid rgba(255,255,255,0.2);
             padding-bottom: 20px;
+            width: 100%;
         }
 
         .result-stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
+            width: 100%;
         }
 
         .result-stat-box {
@@ -385,7 +397,7 @@
         
         <!-- Painel de Resumo (Simplificado sem Ranking) -->
         <div class="result-panel">
-            <div class="result-name" id="end-player-name">NOME</div>
+            <div class="result-name" id="end-player-name">---</div>
             
             <div class="result-stats-grid">
                 <div class="result-stat-box">
@@ -398,10 +410,8 @@
                 </div>
             </div>
             
-            <div style="margin-top: 20px; color: var(--silver); font-size: 1.2rem;" id="end-msg">Mensagem final</div>
+            <div style="margin-top: 20px; color: var(--silver); font-size: 1.2rem; font-weight: bold;" id="end-msg">---</div>
         </div>
-
-        <!-- Ranking Removido -->
         
         <button class="btn-main" onclick="logout()">Sair / Novo Jogo</button>
     </div>
@@ -569,28 +579,49 @@
         }
 
         function endGame() {
-            const db = getDB();
-            const todayKey = new Date().toLocaleDateString();
-            db.users[gameState.user.id].history[todayKey] = { score: gameState.score, date: new Date().toISOString() };
-            saveDB(db);
-            
-            showScreen('screen-result');
-            
-            // PREENCHE O PAINEL GRANDE DE RESULTADO (Apenas Nome, Pontos e Erros)
-            document.getElementById('end-player-name').textContent = gameState.user.name.split(' ')[0].toUpperCase();
-            document.getElementById('end-score').textContent = gameState.score;
-            document.getElementById('end-strikes').textContent = gameState.strikes;
-            
-            const msgEl = document.getElementById('end-msg');
-            if(gameState.strikes >= 3) {
-                msgEl.textContent = "Que pena! Você errou 3 vezes.";
-                msgEl.style.color = "var(--red-wrong)";
-            } else {
-                msgEl.textContent = "Parabéns! Missão cumprida!";
-                msgEl.style.color = "var(--green-correct)";
+            // 1. Salvamento (try-catch para evitar quebras)
+            try {
+                const db = getDB();
+                const todayKey = new Date().toLocaleDateString();
+                if(gameState.user && gameState.user.id) {
+                    if(!db.users[gameState.user.id]) {
+                         db.users[gameState.user.id] = { name: gameState.user.name, history: {} };
+                    }
+                    db.users[gameState.user.id].history[todayKey] = { score: gameState.score, date: new Date().toISOString() };
+                    saveDB(db);
+                }
+            } catch(e) {
+                console.error("Erro ao salvar:", e);
             }
             
-            // Ranking removido conforme solicitado
+            // 2. Atualização do DOM (ANTES de mudar a tela)
+            try {
+                const firstName = gameState.user ? gameState.user.name.split(' ')[0].toUpperCase() : "ALUNO";
+                
+                const nameEl = document.getElementById('end-player-name');
+                const scoreEl = document.getElementById('end-score');
+                const strikesEl = document.getElementById('end-strikes');
+                const msgEl = document.getElementById('end-msg');
+
+                if(nameEl) nameEl.textContent = firstName;
+                if(scoreEl) scoreEl.textContent = gameState.score;
+                if(strikesEl) strikesEl.textContent = gameState.strikes;
+                
+                if(msgEl) {
+                    if(gameState.strikes >= 3) {
+                        msgEl.textContent = "Que pena! Você errou 3 vezes.";
+                        msgEl.style.color = "var(--red-wrong)";
+                    } else {
+                        msgEl.textContent = "Parabéns! Missão cumprida!";
+                        msgEl.style.color = "var(--green-correct)";
+                    }
+                }
+            } catch(e) {
+                console.error("Erro ao atualizar DOM final:", e);
+            }
+
+            // 3. Troca de Tela (Garante visualização)
+            showScreen('screen-result');
         }
 
         function logout() { location.reload(); }
