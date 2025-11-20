@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Show do Crisma</title>
-    <!-- Biblioteca de QR Code sugerida pelo usuário -->
+    <!-- Biblioteca de QR Code -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <style>
@@ -71,7 +71,7 @@
         .login-container {
             width: 100%;
             max-width: 400px;
-            background: rgba(0,0,0,0.8); /* Mais escuro para contraste do QR */
+            background: rgba(0,0,0,0.8);
             padding: 20px;
             border-radius: 15px;
             border: 1px solid var(--gold);
@@ -81,17 +81,15 @@
             align-items: center;
         }
 
-        /* Estilização do Leitor HTML5-QRCODE */
         #reader {
             width: 100%;
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 15px;
             background: #000;
-            display: none; /* Oculto inicialmente */
+            display: none;
         }
         
-        /* Ajustes nos botões internos da biblioteca */
         #reader button {
             background: var(--gold);
             color: #000;
@@ -103,14 +101,8 @@
             cursor: pointer;
         }
         
-        #reader select {
-            color: #000;
-            padding: 5px;
-        }
-
-        #reader__dashboard_section_csr span {
-            color: white !important; /* Texto de permissão visível */
-        }
+        #reader select { color: #000; padding: 5px; }
+        #reader__dashboard_section_csr span { color: white !important; }
 
         input {
             width: 100%;
@@ -152,13 +144,17 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 10px;
-            font-size: 0.9rem;
+            align-items: center;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: bold;
             color: var(--gold);
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.8);
             position: absolute;
             top: 0;
             left: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 100;
         }
 
         .question-box {
@@ -172,12 +168,12 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #fff;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             margin-bottom: 20px;
-            margin-top: 40px;
+            margin-top: 60px; /* Espaço para o header */
             border: 2px solid #fff;
             position: relative;
         }
@@ -187,7 +183,7 @@
             max-width: 600px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .option-btn {
@@ -220,7 +216,7 @@
             padding: 15px;
             flex-grow: 1;
             text-align: left;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         .correct { background: var(--green-correct) !important; border-color: #fff; }
@@ -251,15 +247,22 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
+        .ranking-item.me {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            color: #fff;
+        }
+
         .ranking-item:first-child { color: var(--gold); font-weight: bold; }
         .ranking-item:nth-child(2) { color: var(--silver); }
         .ranking-item:nth-child(3) { color: #cd7f32; }
 
         .score-big {
-            font-size: 4rem;
+            font-size: 5rem;
             color: var(--gold);
-            font-weight: bold;
+            font-weight: 900;
             margin: 10px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
         .message-box {
@@ -301,13 +304,19 @@
     <!-- TELA DE JOGO -->
     <div id="screen-game" class="screen">
         <div class="game-header">
-            <span id="player-display">Aluno: ---</span>
-            <span>Erros: <span id="strikes-display" style="color: var(--red-wrong)">0</span>/3</span>
-            <span>Questão: <span id="q-num-display">1</span>/10</span>
+            <span id="player-display" style="flex-grow: 1; text-align: left;">Aluno</span>
+            <div style="text-align: right;">
+                <div style="font-size: 0.8rem; color: var(--silver);">ERROS</div>
+                <span id="strikes-display" style="color: var(--red-wrong); font-size: 1.2rem;">0</span>/3
+            </div>
+            <div style="text-align: right; margin-left: 15px;">
+                <div style="font-size: 0.8rem; color: var(--silver);">QUESTÃO</div>
+                <span id="q-num-display" style="color: #fff; font-size: 1.2rem;">1</span>/10
+            </div>
         </div>
 
         <div class="question-box">
-            <span id="question-text">Carregando pergunta...</span>
+            <span id="question-text">Carregando...</span>
         </div>
 
         <div class="options-container" id="options-list"></div>
@@ -316,9 +325,12 @@
     <!-- TELA DE RESULTADO -->
     <div id="screen-result" class="screen">
         <h2>Resultado Final</h2>
-        <p id="result-msg">Você completou o desafio de hoje!</p>
+        <p id="result-msg">Processando...</p>
+        
+        <!-- Score com ID correto -->
         <div class="score-big" id="final-score">0</div>
-        <p>PONTOS</p>
+        <p style="font-size: 1.2rem; margin-top: -10px;">PONTOS</p>
+
         <h3>Ranking Local</h3>
         <div class="ranking-list" id="ranking-container"></div>
         <button class="btn-main" onclick="logout()">Sair</button>
@@ -404,7 +416,7 @@
             
             if(!db.users[id]) db.users[id] = { name: name, history: {} };
             
-            // Bypass check for ID 01
+            // Verifica se já jogou (ignora se for ID 01)
             if(id !== '01' && db.users[id].history[todayKey]) {
                 const todayData = db.users[id].history[todayKey];
                 showMsg(`Olá ${name}! Você já jogou hoje. Pontuação: ${todayData.score}. Tente amanhã!`);
@@ -438,7 +450,10 @@
             if(gameState.strikes >= 3 || gameState.currentIdx >= 10) { endGame(); return; }
             const qData = gameState.questions[gameState.currentIdx];
             
-            document.getElementById('player-display').textContent = `Aluno: ${gameState.user.name}`;
+            // ATUALIZAÇÃO SOLICITADA: NOME E ID
+            const firstName = gameState.user.name.split(' ')[0];
+            document.getElementById('player-display').textContent = `${gameState.user.id} - ${firstName}`;
+
             document.getElementById('strikes-display').textContent = gameState.strikes;
             document.getElementById('q-num-display').textContent = gameState.currentIdx + 1;
             document.getElementById('question-text').textContent = qData.q;
@@ -486,9 +501,28 @@
             const todayKey = new Date().toLocaleDateString();
             db.users[gameState.user.id].history[todayKey] = { score: gameState.score, date: new Date().toISOString() };
             saveDB(db);
+            
             showScreen('screen-result');
-            document.getElementById('final-score').textContent = gameState.score;
-            document.getElementById('result-msg').textContent = gameState.strikes >= 3 ? "Errou 3 vezes! Fim de jogo." : "Parabéns! Você completou as 10 perguntas!";
+            
+            // ATUALIZAÇÃO SOLICITADA: CORREÇÃO DO PLACAR
+            // Animação de contagem
+            const scoreEl = document.getElementById('final-score');
+            scoreEl.textContent = "0";
+            let current = 0;
+            const timer = setInterval(() => {
+                if(current >= gameState.score) {
+                    clearInterval(timer);
+                    scoreEl.textContent = gameState.score;
+                } else {
+                    current++;
+                    scoreEl.textContent = current;
+                }
+            }, 100);
+
+            const msg = document.getElementById('result-msg');
+            if(gameState.strikes >= 3) msg.textContent = "Errou 3 vezes! Fim de jogo.";
+            else msg.textContent = "Parabéns! Você completou as 10 perguntas!";
+            
             renderRanking(db);
         }
 
@@ -497,15 +531,31 @@
             const todayKey = new Date().toLocaleDateString();
             Object.keys(db.users).forEach(uid => {
                 const u = db.users[uid];
-                if(u.history[todayKey]) list.push({ name: u.name, score: u.history[todayKey].score });
+                if(u.history[todayKey]) {
+                    list.push({ 
+                        name: u.name, 
+                        id: uid, // Precisamos do ID para saber quem sou eu
+                        score: u.history[todayKey].score 
+                    });
+                }
             });
+            
             list.sort((a, b) => b.score - a.score);
+            
             const container = document.getElementById('ranking-container');
             container.innerHTML = '';
+            
             list.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'ranking-item';
-                div.innerHTML = `<span>${i+1}º ${item.name}</span><span>${item.score} pts</span>`;
+                
+                // ATUALIZAÇÃO SOLICITADA: DESTACAR USUÁRIO ATUAL
+                // Verifica se é o usuário atual
+                if(String(item.id) === String(gameState.user.id)) {
+                    div.classList.add('me');
+                }
+
+                div.innerHTML = `<span>${i+1}º ${item.name.split(' ')[0]}</span><span>${item.score} pts</span>`;
                 container.appendChild(div);
             });
         }
@@ -518,7 +568,7 @@
             }
         }
 
-        // --- INTEGRAÇÃO HTML5-QRCODE (Sua sugestão) ---
+        // --- INTEGRAÇÃO HTML5-QRCODE ---
         let html5QrcodeScanner = null;
 
         function toggleCamera() {
@@ -527,36 +577,23 @@
             const btn = document.getElementById('btn-camera');
 
             if (readerBox.style.display === 'none' || readerBox.style.display === '') {
-                // ABRIR CAMERA
                 manualBox.style.display = 'none';
                 readerBox.style.display = 'block';
                 btn.textContent = "❌ Fechar Leitor";
 
-                // Instancia o scanner se não existir
                 if (!html5QrcodeScanner) {
-                    html5QrcodeScanner = new Html5QrcodeScanner(
-                        "reader", 
-                        { fps: 10, qrbox: 250 }, 
-                        false // verbose
-                    );
+                    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
                 }
-                
-                // Renderiza (inicia a câmera automaticamente)
                 html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 
             } else {
-                // FECHAR CAMERA
                 closeCameraUI();
             }
         }
 
         function closeCameraUI() {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => {
-                    // Scanner limpo
-                }).catch(error => {
-                    console.error("Failed to clear html5QrcodeScanner. ", error);
-                });
+                html5QrcodeScanner.clear().catch(error => console.error(error));
             }
             document.getElementById('reader').style.display = 'none';
             document.getElementById('manual-box').style.display = 'block';
@@ -564,21 +601,12 @@
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            // Limpa o texto conforme sua lógica (remove 'Crisma Juvenil')
             const cleanText = decodedText.replace(/Crisma Juvenil/i, '').trim();
-            
-            console.log(`QR Lido: ${cleanText}`);
-            
-            // Lógica de Parse Híbrida:
-            // 1. Tenta "ID|NOME" (Padrão original)
-            // 2. Tenta "ID NOME SOBRENOME" (Padrão do seu crachá)
-            
             let id, name;
 
             if(cleanText.includes('|')) {
                 [id, name] = cleanText.split('|');
             } else {
-                // Assume que o primeiro token é o ID e o resto é o nome
                 const parts = cleanText.split(' ');
                 if(parts.length >= 2) {
                     id = parts[0];
@@ -587,23 +615,15 @@
             }
 
             if(id && name) {
-                // Feedback visual
                 document.body.style.backgroundColor = '#fff';
                 setTimeout(() => document.body.style.backgroundColor = '', 100);
-                
-                // Preenche campos (opcional, mas bom pra debug)
                 document.getElementById('input-id').value = id;
                 document.getElementById('input-name').value = name;
-                
-                // Faz login
                 processLogin(id, name);
             }
         }
 
-        function onScanFailure(error) {
-            // handle scan failure, usually better to ignore and keep scanning.
-            // console.warn(`Code scan error = ${error}`);
-        }
+        function onScanFailure(error) { }
     </script>
 </body>
 </html>
