@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Show do Crisma</title>
-    <!-- Biblioteca de QR Code -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <style>
@@ -34,7 +33,7 @@
             overflow: hidden;
         }
 
-        /* --- UI GERAL --- */
+        /* --- TELAS --- */
         .screen {
             display: none;
             flex-direction: column;
@@ -45,17 +44,17 @@
             justify-content: center;
             opacity: 0;
             transition: opacity 0.3s ease;
-            position: absolute; /* Garante sobreposição correta */
+            position: absolute;
             top: 0;
             left: 0;
-            background: radial-gradient(circle at center, var(--bg-light) 0%, var(--bg-dark) 100%); /* Fundo próprio para evitar transparência indesejada */
+            background: radial-gradient(circle at center, var(--bg-light) 0%, var(--bg-dark) 100%);
             z-index: 10;
         }
 
         .screen.active {
             display: flex;
             opacity: 1;
-            z-index: 20; /* Tela ativa sempre no topo */
+            z-index: 100; /* Garante que fique no topo */
         }
 
         h1, h2 {
@@ -74,7 +73,7 @@
             letter-spacing: 2px;
         }
 
-        /* --- LOGIN SCREEN --- */
+        /* --- LOGIN --- */
         .login-container {
             width: 100%;
             max-width: 400px;
@@ -108,9 +107,6 @@
             cursor: pointer;
         }
         
-        #reader select { color: #000; padding: 5px; }
-        #reader__dashboard_section_csr span { color: white !important; }
-
         input {
             width: 100%;
             padding: 15px;
@@ -147,7 +143,7 @@
             font-size: 1rem;
         }
 
-        /* --- GAME SCREEN --- */
+        /* --- JOGO --- */
         .game-header {
             width: 100%;
             display: grid;
@@ -183,19 +179,8 @@
             justify-content: center;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--silver);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: bold;
-            line-height: 1;
-            margin-top: 5px;
-        }
+        .stat-label { font-size: 0.9rem; color: var(--silver); text-transform: uppercase; }
+        .stat-value { font-size: 2.2rem; font-weight: bold; line-height: 1; margin-top: 5px; }
 
         .question-box {
             background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
@@ -274,62 +259,46 @@
             100% { opacity: 1; }
         }
 
-        /* --- RESULT SCREEN (FOCADA) --- */
-        .result-panel {
-            width: 100%;
-            max-width: 600px;
-            background: rgba(255,255,255,0.1);
-            border: 4px solid var(--gold);
-            border-radius: 20px;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        /* --- RESULTADO (SIMPLIFICADO E FOCADO) --- */
+        .final-score-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .result-name {
-            font-size: 3rem;
-            color: var(--gold);
-            font-weight: 900;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border: 4px solid var(--gold);
+            border-radius: 30px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
             margin-bottom: 30px;
-            text-shadow: 2px 2px 0 #000;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding-bottom: 20px;
-            width: 100%;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
         }
 
-        .result-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            width: 100%;
-        }
-
-        .result-stat-box {
-            background: rgba(0,0,0,0.5);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .result-label {
-            font-size: 1.2rem;
+        .final-label {
+            font-size: 1.5rem;
             color: var(--silver);
             text-transform: uppercase;
+            letter-spacing: 2px;
             margin-bottom: 10px;
         }
 
-        .result-value {
-            font-size: 5rem;
+        .final-value-big {
+            font-size: 8rem; /* Pontuação Gigante */
             font-weight: 900;
+            color: var(--gold);
             line-height: 1;
+            text-shadow: 4px 4px 0 #000;
         }
 
-        .val-green { color: var(--green-correct); }
-        .val-red { color: var(--red-wrong); }
+        .final-details {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #fff;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
 
         .message-box {
             background: #fff;
@@ -346,34 +315,26 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
+    <!-- TELA LOGIN -->
     <div id="screen-login" class="screen active">
         <h1>Show do Crisma</h1>
         <div class="login-container">
-            
-            <!-- Container para o Leitor de QR -->
             <div id="reader"></div>
-            
             <div id="manual-box" style="width: 100%;">
                 <input type="text" id="input-id" placeholder="ID do Aluno (ex: 01)">
                 <input type="text" id="input-name" placeholder="Primeiro Nome">
             </div>
-
             <div id="msg-login" class="message-box" style="background: #ffeb3b;"></div>
-
             <button class="btn-main" id="btn-jogar" onclick="loginManual()">Entrar / Jogar</button>
             <button class="btn-secondary" id="btn-camera" onclick="toggleCamera()">📷 Abrir Leitor QR</button>
             <button class="btn-secondary" style="border-color: transparent; font-size: 0.8rem;" onclick="clearData()">Limpar Dados Locais</button>
         </div>
     </div>
 
-    <!-- TELA DE JOGO -->
+    <!-- TELA JOGO -->
     <div id="screen-game" class="screen">
         <div class="game-header">
-            <!-- Nome bem grande no topo -->
             <div class="header-name" id="player-display">ALUNO</div>
-            
-            <!-- Status grandes lado a lado -->
             <div class="header-stat">
                 <span class="stat-label">Erros</span>
                 <span class="stat-value" id="strikes-display" style="color: var(--red-wrong);">0/3</span>
@@ -383,41 +344,33 @@
                 <span class="stat-value" id="q-num-display" style="color: #fff;">1/10</span>
             </div>
         </div>
-
         <div class="question-box">
             <span id="question-text">Carregando...</span>
         </div>
-
         <div class="options-container" id="options-list"></div>
     </div>
 
-    <!-- TELA DE RESULTADO -->
+    <!-- TELA RESULTADO (FOCADA) -->
     <div id="screen-result" class="screen">
-        <h2>Resultado da Partida</h2>
+        <h2 style="color: var(--gold); font-size: 2rem;">FIM DE JOGO!</h2>
         
-        <!-- Painel de Resumo (Simplificado sem Ranking) -->
-        <div class="result-panel">
-            <div class="result-name" id="end-player-name">---</div>
+        <div class="final-score-container">
+            <div class="final-label">Sua Pontuação</div>
+            <div class="final-value-big" id="end-score">0</div>
             
-            <div class="result-stats-grid">
-                <div class="result-stat-box">
-                    <div class="result-label">Pontuação</div>
-                    <div class="result-value val-green" id="end-score">0</div>
-                </div>
-                <div class="result-stat-box">
-                    <div class="result-label">Erros</div>
-                    <div class="result-value val-red" id="end-strikes">0</div>
-                </div>
+            <div class="final-details">
+                <span id="end-player-name">Nome</span> | 
+                <span style="color: var(--red-wrong)">Erros: <span id="end-strikes">0</span></span>
             </div>
-            
-            <div style="margin-top: 20px; color: var(--silver); font-size: 1.2rem; font-weight: bold;" id="end-msg">---</div>
         </div>
+        
+        <div id="end-msg" style="font-size: 1.2rem; margin-bottom: 20px; color: var(--silver);"></div>
         
         <button class="btn-main" onclick="logout()">Sair / Novo Jogo</button>
     </div>
 
     <script>
-        // --- BANCO DE PERGUNTAS ---
+        // --- CONFIGURAÇÃO ---
         const baseQuestions = [
             { q: "Quantos são os Sacramentos da Igreja Católica?", options: ["7", "10", "3", "12"], correct: 0 },
             { q: "Qual sacramento nos torna filhos de Deus?", options: ["Crisma", "Batismo", "Eucaristia", "Ordem"], correct: 1 },
@@ -464,13 +417,12 @@
         function generateBigPool() {
             let bigPool = [];
             for(let i=0; i<50; i++) {
-                const shuffled = [...baseQuestions].sort(() => Math.random() - 0.5);
-                bigPool = bigPool.concat(shuffled);
+                bigPool = bigPool.concat([...baseQuestions].sort(() => Math.random() - 0.5));
             }
             return bigPool;
         }
 
-        // --- ESTADO DO JOGO ---
+        // --- ESTADO ---
         let gameState = { user: null, questions: [], currentIdx: 0, score: 0, strikes: 0, isLocked: false };
         const DB_KEY = 'crisma_game_db_v2';
         
@@ -482,7 +434,7 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // --- LOGIN LOGIC ---
+        // --- LOGIN ---
         function loginManual() {
             const id = document.getElementById('input-id').value.trim();
             const name = document.getElementById('input-name').value.trim();
@@ -496,15 +448,14 @@
             
             if(!db.users[id]) db.users[id] = { name: name, history: {} };
             
-            // Verifica se já jogou (ignora se for ID 01)
             if(id !== '01' && db.users[id].history[todayKey]) {
                 const todayData = db.users[id].history[todayKey];
-                showMsg(`Olá ${name}! Você já jogou hoje. Pontuação: ${todayData.score}. Tente amanhã!`);
+                showMsg(`Olá ${name}! Você já jogou hoje. Pontuação: ${todayData.score}.`);
                 return;
             }
 
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(error => console.error("Erro ao limpar scanner", error));
+                html5QrcodeScanner.clear().catch(e => console.log(e));
                 document.getElementById('reader').style.display = "none";
                 document.getElementById('btn-camera').textContent = "📷 Abrir Leitor QR";
             }
@@ -525,19 +476,16 @@
             el.style.display = 'block';
         }
 
-        // --- GAME LOGIC ---
+        // --- JOGO ---
         function renderGame() {
             if(gameState.strikes >= 3 || gameState.currentIdx >= 10) { endGame(); return; }
-            const qData = gameState.questions[gameState.currentIdx];
             
-            // NOME E ID GRANDES NO TOPO
+            const qData = gameState.questions[gameState.currentIdx];
             const firstName = gameState.user.name.split(' ')[0].toUpperCase();
+            
             document.getElementById('player-display').textContent = `${gameState.user.id} - ${firstName}`;
-
-            // STATUS ATUALIZADOS
             document.getElementById('strikes-display').textContent = `${gameState.strikes}/3`;
             document.getElementById('q-num-display').textContent = `${gameState.currentIdx + 1}/10`;
-            
             document.getElementById('question-text').textContent = qData.q;
             
             const optContainer = document.getElementById('options-list');
@@ -579,60 +527,40 @@
         }
 
         function endGame() {
-            // 1. Salvamento (try-catch para evitar quebras)
+            // Salva no DB
             try {
                 const db = getDB();
                 const todayKey = new Date().toLocaleDateString();
-                if(gameState.user && gameState.user.id) {
-                    if(!db.users[gameState.user.id]) {
-                         db.users[gameState.user.id] = { name: gameState.user.name, history: {} };
-                    }
+                if(gameState.user) {
+                    if(!db.users[gameState.user.id]) db.users[gameState.user.id] = { name: gameState.user.name, history: {} };
                     db.users[gameState.user.id].history[todayKey] = { score: gameState.score, date: new Date().toISOString() };
                     saveDB(db);
                 }
-            } catch(e) {
-                console.error("Erro ao salvar:", e);
-            }
+            } catch(e) {}
+
+            // Exibe Tela (Foco total na pontuação)
+            const firstName = gameState.user ? gameState.user.name.split(' ')[0].toUpperCase() : "";
             
-            // 2. Atualização do DOM (ANTES de mudar a tela)
-            try {
-                const firstName = gameState.user ? gameState.user.name.split(' ')[0].toUpperCase() : "ALUNO";
-                
-                const nameEl = document.getElementById('end-player-name');
-                const scoreEl = document.getElementById('end-score');
-                const strikesEl = document.getElementById('end-strikes');
-                const msgEl = document.getElementById('end-msg');
+            document.getElementById('end-score').textContent = gameState.score;
+            document.getElementById('end-player-name').textContent = firstName;
+            document.getElementById('end-strikes').textContent = gameState.strikes;
+            
+            const msgEl = document.getElementById('end-msg');
+            if(gameState.strikes >= 3) msgEl.textContent = "Que pena! Errou 3 vezes.";
+            else msgEl.textContent = "Parabéns! Missão cumprida!";
 
-                if(nameEl) nameEl.textContent = firstName;
-                if(scoreEl) scoreEl.textContent = gameState.score;
-                if(strikesEl) strikesEl.textContent = gameState.strikes;
-                
-                if(msgEl) {
-                    if(gameState.strikes >= 3) {
-                        msgEl.textContent = "Que pena! Você errou 3 vezes.";
-                        msgEl.style.color = "var(--red-wrong)";
-                    } else {
-                        msgEl.textContent = "Parabéns! Missão cumprida!";
-                        msgEl.style.color = "var(--green-correct)";
-                    }
-                }
-            } catch(e) {
-                console.error("Erro ao atualizar DOM final:", e);
-            }
-
-            // 3. Troca de Tela (Garante visualização)
             showScreen('screen-result');
         }
 
         function logout() { location.reload(); }
         function clearData() {
-            if(confirm("Isso apagará todo o histórico. Confirma?")) {
+            if(confirm("Apagar tudo?")) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // --- INTEGRAÇÃO HTML5-QRCODE ---
+        // --- QR CODE ---
         let html5QrcodeScanner = null;
 
         function toggleCamera() {
@@ -649,35 +577,26 @@
                     html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
                 }
                 html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-
             } else {
                 closeCameraUI();
             }
         }
 
         function closeCameraUI() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(error => console.error(error));
-            }
+            if (html5QrcodeScanner) html5QrcodeScanner.clear().catch(e => {});
             document.getElementById('reader').style.display = 'none';
             document.getElementById('manual-box').style.display = 'block';
             document.getElementById('btn-camera').textContent = "📷 Abrir Leitor QR";
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
+        function onScanSuccess(decodedText) {
             const cleanText = decodedText.replace(/Crisma Juvenil/i, '').trim();
             let id, name;
-
-            if(cleanText.includes('|')) {
-                [id, name] = cleanText.split('|');
-            } else {
+            if(cleanText.includes('|')) [id, name] = cleanText.split('|');
+            else {
                 const parts = cleanText.split(' ');
-                if(parts.length >= 2) {
-                    id = parts[0];
-                    name = parts.slice(1).join(' ');
-                }
+                if(parts.length >= 2) { id = parts[0]; name = parts.slice(1).join(' '); }
             }
-
             if(id && name) {
                 document.body.style.backgroundColor = '#fff';
                 setTimeout(() => document.body.style.backgroundColor = '', 100);
@@ -686,8 +605,7 @@
                 processLogin(id, name);
             }
         }
-
-        function onScanFailure(error) { }
+        function onScanFailure(error) {}
     </script>
 </body>
 </html>
